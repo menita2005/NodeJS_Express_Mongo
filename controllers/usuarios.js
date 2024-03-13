@@ -5,7 +5,17 @@ const express = require('express');
 const ruta = express.Router();
 
 ruta.get('/', (req,res)=>{
-    res.json('Respuesta Get funcionando')
+    let resultado = listarUsuarioActivo();
+    resultado.then(usuarios => {
+        res.json(usuarios)
+    }).catch(err => {
+        res.status(400).json(
+            {
+                
+            }
+        )
+    })
+    
 });
 
 //validacion de usuario
@@ -84,4 +94,33 @@ ruta.post('/', (req, res) => {
         })
     }    
 });
+//funcion para inactivar usuario
+async function desactivarUsuario(email){
+    let usuario = await Usuario.findOneAndUpdate({"email": email},{
+        $set:{
+            estado: false
+        }
+    },{new:true});
+    return usuario;
+}
+
+//endpont de tipo delete para el Usuario
+ruta.delete('/:email',  (req,res)=>{
+    let resultado= desactivarUsuario(req.params.email);
+    resultado.then(valor=>{
+        res.json({
+            usuario: valor
+        })
+    }).catch(err =>{
+        res.status(400).json({
+            err
+        })
+    });
+});
+
+//funcion get para listar a todos los usuarios activos
+async function listarUsuarioActivo(){
+    let usuarios = await Usuario.find({"estado": true});
+    return usuarios;
+}
 module.exports = ruta;
