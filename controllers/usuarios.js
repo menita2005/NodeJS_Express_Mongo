@@ -1,46 +1,22 @@
-const mongoose = require('mongoose');
 const express = require('express');
 const ruta = express.Router();
-const logic = require('../logic/usuario_logic')
+const logic = require('../logic/usuario_logic');
 
-//Endpoint de tipo get para usuarios
-ruta.get('/', (req,res)=>{
-    let resultado = logic.listarUsuarioActivo();
+//Endpoint de tipo GET para el recurso usuarios. Lista todos los usuarios
+ruta.get('/',(req, res) => {
+    let resultado = logic.listarUsuarioActivos();
     resultado.then(usuarios => {
         res.json(usuarios)
     }).catch(err => {
         res.status(400).json(
             {
-                
+                err
             }
         )
     })
-    
 });
 
-
-//enpoint put
-ruta.put('/:email',(req,res)=>{
-    const{error, value} = logic.schema.validate({nombre: req.body.nombre});
-    if(!error){
-        let resultado = logic.actualizarUsuario(req.params.email,req.body);
-        resultado.then(valor =>{
-            res.json({
-                valor
-            })
-        }).catch(err =>{
-            res.status(400).json({
-                err
-            })
-        });
-    }else{
-        res.status(400).json({
-            error
-        })
-    }
-});
-//enpoint post
-
+// Endpoint de tipo POST para el recurso USUARIOS
 ruta.post('/', (req, res) => {
     let body = req.body;
 
@@ -64,20 +40,39 @@ ruta.post('/', (req, res) => {
     }    
 });
 
+//Endpoint de tipo PUT para actualizar los datos del usuario
+ruta.put('/:email', (req, res) => {
+    const {error, value} = logic.schema.validate({nombre: req.body.nombre});
+    if(!error){
+        let resultado = logic.actualizarUsuario(req.params.email, req.body);
+        resultado.then(valor => {
+            res.json({
+                valor
+            })
+        }).catch(err => {
+            res.status(400).json({
+                err
+            })
+        });
+    }else{
+        res.status(400).json({
+            error
+        })
+    }    
+});
 
-//endpont de tipo delete para el Usuario
-ruta.delete('/:email',  (req,res)=>{
-    let resultado= logic.desactivarUsuario(req.params.email);
-    resultado.then(valor=>{
+//Endpoint de tipo DELETE para el recurso USUARIOS
+ruta.delete('/:email', (req, res) => {
+    let resultado = logic.desactivarUsuario(req.params.email);
+    resultado.then(valor => {
         res.json({
             usuario: valor
         })
-    }).catch(err =>{
+    }).catch(err => {
         res.status(400).json({
             err
         })
     });
 });
-
 
 module.exports = ruta;
